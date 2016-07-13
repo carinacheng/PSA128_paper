@@ -77,7 +77,6 @@ Carina Cheng\altaffilmark{1}
 %\altaffiltext{8}{School of Earth and Space Exploration, Arizona State U., Tempe, AZ}
 
 \begin{abstract}
-\cc{I can write comments like this!}
 \end{abstract}
 
 
@@ -96,26 +95,70 @@ A third powerful probe of the EoR makes use of the $21 cm$ wavelength emission p
 
 Major existing $21 cm$ experiments include both those targeting to measure the sky-averaged `global' $21 cm$ signal and those employing interferometric elements and the use of cross-correlations and statistical power-spectral measurements. Examples of the former are EDGES, the LWA, LEDA, DARE, BigHorns, and SARAS. Major interferometers include the GMRT, LOFAR, the MWA, the 21CMA, and PAPER.
 
-In this paper we present results from the $128$ antenna configuration of the Donald C. Baker Precision Array for Probing the Epoch of Reionization (PAPER). PAPER is a highly redundant array consisting of dual-polarization dipole antennas. Its configuration is optimal for boosting power spectrum sensitivity and the analysis used relies on a foreground avoidance approach where we measure power spectrum values in a region of delay space that is uncontaminated by foregrounds. Previous upper limits on the EoR power spectrum include those made by PAPER-32, which used its redundant configuration to its advantage to obtain an upper limit of $\Delta^{2}(k) \leq (41 mk)^{2}$ at $k=0.28h Mpc^{-2}$. Doubling in array size and employing an updated analysis pipeline that included fringe-rate filtering and an optimal quadratic estimator framework for the power spectrum analysis achieved an upper limit on $\Delta^{2}(k)$ of $(22.4mK)^{2}$ in the range $0.15 < k < 0.5h Mpc^{-1}$ at $z = 8.4$. The result from PAPER-64 was the best published upper limit thus far, with PAPER-128 achieving a factor of ?? in improvement.
+In this paper we present results from the $128$ antenna configuration of the Donald C. Baker Precision Array for Probing the Epoch of Reionization (PAPER). PAPER is a highly redundant array consisting of dual-polarization dipole antennas. Its configuration is optimal for boosting power spectrum sensitivity and the analysis used relies on a foreground avoidance approach where we measure power spectrum values in a region of delay space that is uncontaminated by foregrounds. Previous upper limits on the EoR power spectrum include those made by PAPER-32, which used its redundant configuration to its advantage to obtain an upper limit of $\Delta^{2}(k) \leq (41 mk)^{2}$ at $k=0.28h Mpc^{-2}$. Doubling in array size and employing an updated analysis pipeline that included fringe-rate filtering and an optimal quadratic estimator framework for the power spectrum analysis achieved an upper limit on $\Delta^{2}(k)$ of $(22.4 mK)^{2}$ in the range $0.15 < k < 0.5h Mpc^{-1}$ at $z = 8.4$. The result from PAPER-64 was the best published upper limit thus far, with PAPER-128 achieving a factor of ?? in improvement.
 
 PAPER-128 has been able to use much of the same technical analysis framework from previous PAPER analyses, while improving on the limits set by PAPER-64 with a longer observing time, double the number of antennas, and the development of new data quality tests, signal loss simulations, and inverse covariance weighting techniques. 
 
 The organization of the paper is as follows. ...
 
-
 \section{Observations}
 \label{sec:Obs}
 
-\begin{figure}[!]
+\begin{figure*}[!]
 	\centering
-	\includegraphics[width=0.52\textwidth]{antlayout.png}
-	\caption{\cc{caption here}}
-	\label{fig:figtest}
-\end{figure}
+	\includegraphics[width=1.0\textwidth]{antlayout.png}
+	\caption{The antenna layout of PAPER-128. Core grid antennas are labeled $1$ through $111$ and outrigger antennas are labeled $112$ through $127$.}
+	\label{fig:layout}
+\end{figure*}
 
+PAPER is located in the Karoo desert in South Africa at a latitude of $-30:43:18$ and longitude of $21:25:42$. The PAPER-128 antenna configuration is shown in \ref{fig:layout}. It consists of a $7$x$16$ core grid of antennas and $16$ outrigger antennas, some of which are located inside the core grid and some placed farther away to establish longer baselines. The analysis carried out in this paper makes use of only the core grid of antennas, with the East-West direction shown in \ref{fig:layout} as to the right and left. Adjacent East-West baselines have a length of $15 m$ and adjacent North-South baselines have a length of $4 m$. The baselines used in our analysis are...
+
+The PAPER signal chain consists of drift-scan antenna elements...
+The PAPER beam is...
+
+The PAPER-128 observing season began in November, 2013, with nightly data taken for approximately $4$ months. The second observing season started up again in June, 2014 and lasted until February, 2015. Both these seasons encompass part or all of the months corresponding to our optimal observing season for which the Galaxy is below the horizon. Collectively, PAPER-128 logged $233$ nights of raw data. In this analysis, we use $??$ nights of data from season $??$. We exclude nights of known hardware malfunctioning (power failures, overheating of equipment, etc.), as well as outlier nights whose data did not pass our quality checks (see: quality paper). For our analysis, we use an LST range of $??$ which corresponds to observations of a `cold patch' of the night sky. All polarization products are saved, but we only make use of the XX and YY polarizations in this paper.
 
 \section{Data Reduction}
 \label{sec:Cal}
+
+Raw PAPER data consists of $1024$ frequency channels sampled every $97.6 kHz$. Every $10$ minute file then goes through our compression pipeline, which consists of a two-step radio frequency interference (RFI) flagger and averaging along both the frequency (delay filtering) and time (fringe rate filtering) axes. Final compressed data consists of $203$ frequency channels covering a bandwidth of $100-200 MHz$. Each $10$ minute file contains data sampled at integrations of $31.65 s$. The amplitudes of one night of raw and compressed data is shown in \ref{fig:raw} as waterfall plots of frequency versus time. 
+
+\begin{figure*}[!]
+	\centering
+	%\includegraphics[width=1.0\textwidth]{raw.png}
+	\caption{Waterfall plots (in log Janskys) of one night of raw PAPER-128 data (left) and the same data after compression (right). Compression downsizes files by averaging over time and frequency and flags radio frequency interference.}
+	\label{fig:raw}
+\end{figure*}
+
+\subsection{Redundant Calibration}
+
+The sought-after $21 cm$ signal lies beneath bright foregrounds and various instrumental systematics that contaminate our data. Because foregrounds are predicted to be $4-5$ orders of magnitude brighter than the cosmological signal, $21 cm$ experiments require high dynamic ranges and considerable sensitivities. PAPER is designed to boost its sensitivity by containing many short, repeated baselines of the same length and orientation in its array. Thus, PAPER is able to measure the same Fourier-mode on the sky multiple times while beating down the amount of noise with each successive measurement.
+
+Calibration of antennas in a redundant array is therefore crucial to maximize sensitivity. In our raw data, visibility measurements from two identical baseline types are not necessarily be equal. This is due to changing system temperatures and different signal chains as data flows from each antenna into the correlator. However, PAPER's redundant layout can be used to solve for complex antenna gains, which when applied to the data, bring all visibility measurements for a specific baseline type into alignment. 
+
+Redundant calibration has proven to be a powerful tool. PAPER-64 relied on redundant calibration to achieve its power spectrum limits, and here we update our method and tools and apply it to PAPER-128. As a review, let's start with the visibility measurement equation:
+
+\begin{eqnarray}
+\label{viseq}
+V_{ij}' &=& g_{i}^{*}g_{j}V_{ij} + n_{ij} \\
+g_{j} &=&\eta_{j} + i\phi_{j}
+\end{eqnarray}
+
+Here $V_{ij}'$ represents a measured visibility for a baseline with antennas $i,j$, $V_{ij}$ represents the `true' sky visibility for that same baseline, $g_{i}$ and $g_{j}$ are the complex gain factors for each antenna, and $n_{ij}$ is noise. Each gain number consist of an amplitude $\eta$ and phase $\phi$. The visibility equation can be written down for all baselines and - without using array redundancy - would not be least squares solvable because of too many unknowns. However, if $V_{ij}$, the `true', or `model' visibility, is constrained to be the same for all identical baselines, the system of equations becomes least squares solvable.
+
+For our analysis, we use the package Omnical for redundant calibration. Similarly to the analysis of PAPER-64, Omnical comprises of three steps. The first is $FirstCal$, which uses all baseline redundancies to generate a static gain solution for each antenna that will unwrap any phase wrapping between two identical baselines. We perform $FirstCal$ because the next stage of Omnical cannot tell the difference between a phase of $0$ and $2\pi$, for example. The second step is $LogCal$, which takes the log of all the visibility equations and separates the real and imaginary components into two matrices. Coarse solutions are determined for both the antenna gains and `model' visibilities (one for each baseline type) simultaneously. The final step of Omnical is $LinCal$, which applies small perturbations to the $LogCal$ solutions in an iterative fashion, honing in on the optimal solutions.
+
+For PAPER-128, we update the Omnical software package, originally written in C, with a user-friendly interface written in Python. We also include the subtraction of crosstalk in our dataset. Crosstalk shows up as a constant signal in time in our visibilities and is attributed to signals from one antenna being picked up by another. Omnical handles crosstalk by subtracting off an averaged residual (differences between measured visibilities and the `model' visibility, averaged over baseline type) for each visibility measurement. Additionally, we employ a chi-square metric on a per antenna basis in order to exclude dead or faulty antennas and improve our calibration solutions. \cc{Add plots to show stability of Omnical solutions and chi-square examples}
+
+We perform redundant calibration for each epoch of data used in our analysis, as each epoch has to be separately calibrated since they are on different overall gain scales. We divide out the antenna gains for each of our measured visibilities, bringing them into alignment with each other (for identical baseline types) and the `model' visibility for that baseline type. It is important to note that while Omnical is powerful for ensuring array redundancy, it is not able to solve for $4$ calibration parameters - namely, to correct for the overall gain, phase, and tip/tilt of the array. In order to do this, we turn to...
+
+\subsection{Bandpass Calibration}
+
+\subsection{Delay-Domain Foreground Removal}
+
+\subsection{RFI Removal and LST-Binning}
+
+\subsection{Absolute Calibration}
 
 \section{Power Spectrum Analysis}
 \label{sec:PS}
