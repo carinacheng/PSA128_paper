@@ -139,7 +139,7 @@ Calibration of antennas in a redundant array is therefore crucial in order to ma
 Redundant calibration has proven to be a powerful tool. PAPER-64 relied on redundant calibration to achieve its power spectrum limits, and here we update our method and tools and apply it to PAPER-128. As a review, let's start with the visibility measurement equation:
 
 \begin{eqnarray}
-\label{viseq}
+\label{eq:viseq}
 V_{ij}' &=& g_{i}^{*}g_{j}V_{ij} + n_{ij} \\
 g_{j} &=&\eta_{j} + i\phi_{j}
 \end{eqnarray}
@@ -164,26 +164,129 @@ In order to filter foregrounds, we exploit their spectrally-smooth nature. By Fo
 
 In practice, we filter our calibrated visibilities by de-convolving out our sampling function (which contains flags due to RFI) from our delay-domain visibilities using a CLEAN-like algorithm and restricting our clean components to inside the horizon limit (set by the baseline length) plus a $15 ns$ buffer. The Fourier-transformed clean components are then subtracted from our visibilities. This filtering process is performed on a per-baseline, per-integration basis, and we achieve a brightness suppression of $~2$ orders of magnitude in our visibilities. 
 
-\subsection{RFI Removal and LST-Binning}
+\subsection{RFI Removal, LST-Binning, and Absolute Calibration}
 
-\subsection{Absolute Calibration}
+We perform a final round of RFI-removal by flagging visibilities that lie more than $4\sigma$ above the mean on a time, frequency, and baseline basis. \cc{we flag specific channels before delay filtering too, to avoid leakage outside of the horizon limit due to Fourier-transforming super un-smooth signals}
+
+Finally, we stack our data in LST into two datasets, alternating between even and odd Julian Dates to create an `even' and `odd' LST-binned dataset. \cc{other jack-knife tests...}
+
+Recalling that redundant calibration through Omnical does not solve for the overall calibration parameters of our array, we calibrate these final unknowns by matching our LST-binned datasets with that of PAPER-64. For the PAPER-64 analysis, absolute calibration was carried out by standard radio astronomy self-calibration. Overall phase terms were fitted using Pictor A, Fornax A, and the Crab Nebula, and the overall flux scale was determined using Pictor A as a calibrator source. PAPER-64's analysis produced even and odd LST-binned data covering an LST range of $0-8$, fully encompassing the LST ranges we use in our analysis. 
+
+We match the overall gain scale of our data to that of PAPER-64 by fitting an 8th order polynomial to the time-averaged ratio of the two LST-aligned foreground-containing datasets and then applying that polynomial to our foreground-filtered LST-binned datasets. Similarly, we match the overall phase by fitting a linear line to the phase difference between PAPER-128 and PAPER-64. 
+
+\subsection{Fringe-Rate Filtering}
+
+In order to further suppress foregrounds and instrumental noise, we weight our visibilities on a temporal basis in a technique known as fringe-rate filtering. We take the Fourier transform along time to enter fringe-rate space, in which our data spans a range of fringe-rates determined by our integration time. In the fringe-rate domain, it is a natural space in which to filter out noise that is not associated with the rotating sky. This is because signals attached to the sky have a maximum fringe-rate set by the rotation velocity of the Earth (i.e. sources at the equator appear the move the fastest), and therefore any signals that exceed this fringe-rate cannot be the cosmological signal and can safely be filtered without any loss of information. 
+
+It was shown in \citet{parsons_et_al2016} that filtering in fringe-rate space is equivalent to weighting data by the primary beam. Because of this, we determine an optimal fringe-rate filter that up-weights parts of the sky that our beam is most sensitive to, while down-weighting the opposite. We also filter out the zero fringe-rate bin, which contains signals that are constant in time, such as crosstalk. We then apply the filter on a per-baseline basis as a convolution in the time-domain, which has the affect of averaging our data in time. 
+
+Using an optimal fringe-rate filter comes at the cost of signal loss due to a reduction of the number of independent time samples in our dataset...
 
 \section{Power Spectrum Analysis}
 \label{sec:PS}
 
+With our final visibilities in hand, we are ready to estimate the $21 cm$ power spectrum, $\hat{\textbf{p}}(\textbf{k})$. The power spectrum measurement is a function of $\textbf{k} = (k_{x},k_{y},k_{z})$, where each component of $k$ represents the Fourier-dual to spatial coordinates $(x,y,z)$. Our visibilities have already been Fourier-transformed along two of these axes, namely, along $k_{\perp} = \sqrt{k_{x}^{2}+k_{y}^{2}}$. This perpendicular component of $k$ is analogous to the spatial Fourier-modes in the plane of the sky, while the parallel component of $k$, $k_{\parallel}$, is the Fourier-transform of our visibilities along the line-of-sight (in the frequency direction). 
+
+Our visibilities measure the sky temperature in units of Janskys. Recalling that we are interested in the power of the cosmological signal on different $k$-scales, we can map our data to a power spectral measurement using the standard definition
+
+\begin{equation}
+\label{eq:ps}
+\langle \tilde{T}_{b}(\textbf{k})^{*}\tilde{T}_{b}(\textbf{k'})\rangle = (2\pi)^{3} \delta^{D}(\textbf{k}-\textbf{k'})\hat{\textbf{p}}(\textbf{k})
+\end{equation}
+
+\noindent where $\tilde{T}_{b}(\textbf{k})$ is the spatial Fourier-transform of the brightness temperature of the sky, $\delta^{D}$ is the Dirac delta function, and $\langle \rangle$ is an ensemble average. As a simplistic explanation, we need to take our visibility temperature measurements, Fourier-transform them along the frequency axis and convert from units of Janskys to Kelvins, square, and bin in constant contours of $k$. In practice, however, we use linear algebra techniques as explained in the following section in order to obtain both $\hat{\textbf{p}}(\textbf{k})$ and its associated error bars. 
+
 \subsection{Optimal Quadratic Estimators}
 \label{sec:OQE}
+
+We follow the optimal quadratic estimator (OQE) formalism used by \citet{ali_et_al2015} to form estimates of our power spectrum $\hat{\textbf{p}}(\textbf{k})$. As a brief review, we recap the method here as applied to our data. 
+
+We begin with the data vector $\textbf{x}$, which consists of our visibility measurements as a function of time and frequency for each baseline. We divide our data into separate datasets by baseline type, and apply the OQE formalism to each separately, forming multiple power spectra. In our analysis, we use \cc{??} types of baselines. After forming the power spectra, we fold them into our final power spectrum by \cc{??}.
+
+Recalling that our goal is to measure power spectrum values as a function of \textbf{k}, the Fourier dual to the spatial directions, the next step is to form the set $\hat{q}_{\alpha}$. This quantity, defined as  
+
+\begin{equation}
+\label{eq:qhat}
+\hat{q}_{\alpha} = \frac{1}{2}\textbf{x}^{\dagger}\textbf{C}^{-1}\textbf{Q}_{\alpha}\textbf{C}^{-1}\textbf{x}-b_{\alpha}
+\end{equation}
+
+\noindent represents power spectrum quantities (un-normalized) for each $k$ bin indexed by $\alpha$. Here we see two copies of our data vector \textbf{x} and two copies of $\textbf{C}^{-1}$ where $\bf{C} \equiv \langle\textbf{x}\textbf{x}^{\dagger}\rangle$, the true covariance matrix of \textbf{x}. The operator $\textbf{Q}_{\alpha}$ transforms our visibilities into power spectrum space by performing a Fourier transform along the frequency axis, and $b_{\alpha}$ is a noise bias that is subtracted off.
+
+In practice, $\bf{x}$ has dimensions of time versus frequency and exists for every baseline (in a given redundant group), and group (such as an `even' or `odd' LST-binned set). Notice that there is a copy of $\textbf{C}^{-1}\textbf{x}$ on each side of the expression for $\hat{q}_{\alpha}$. When performing this computation, we do not allow the cross-multiplication to occur if both quantities are derived for the same baseline, or the same group. For example, we do not allow $(\textbf{C}^{-1}\textbf{x})_{even'A}$ to be multiplied with $(\textbf{C}^{-1}\textbf{x})_{even,B}$ since both quantities are formed from the `even' dataset, nor do we allow $(\textbf{C}^{-1}\textbf{x})_{even,A}$ to be multiplied with $(\textbf{C}^{-1}\textbf{x})_{odd,A}$, since both quantities are formed for baseline $A$. We do not include these cases in order to eliminate any biases from allowing auto power from identical baselines or groups to remain.
+
+For faster computation (due to less cross-multiplications), we divide our baselines into $5$ subgroups and sum up the quantities $\textbf{C}^{-1}\textbf{x}$ for each. We still do not allow $\hat{q}_{\alpha}$ to be computed if the same baseline appears in both subgroups that are being cross-multiplied. 
+
+Once we have formed our $\hat{q}_{\alpha}$s, we can normalize them using the matrix \textbf{M}. Namely,
+
+\begin{eqnarray}
+\hat{\textbf{p}} = \textbf{M}\hat{\textbf{q}}
+\end{eqnarray}
+
+\noindent where $\hat{\textbf{p}}$ is the normalized estimate of the true power spectrum $\textbf{p}$. Before we compute \textbf{M}, we define the Fisher matrix \textbf{F} to be
+
+\begin{eqnarray}
+\textbf{F}_{\alpha\beta} = \frac{1}{2}tr(\textbf{C}^{-1}\textbf{Q}_{\alpha}\textbf{C}^{-1}\textbf{Q}_{\beta})
+\end{eqnarray}
+
+\noindent where $\alpha$ and $\beta$ represent different bandpowers or $k$ bins. The Fisher matrix encodes information about \cc{??}. It is related to the normalization matrix \textbf{M} by the window function matrix \textbf{W}, which relates the true power spectrum \textbf{p} with our estimates $\hat{\textbf{p}}$:
+
+\begin{eqnarray}
+\textbf{W} &=& \textbf{MF} \\
+\hat{\textbf{p}} &=& \textbf{Wp}
+\end{eqnarray}
+
+\noindent The window function is constructed so that each row sums to unity. This ensures proper normalization of the power spectrum estimates. In practice, we have a choice of \textbf{M} and in our analysis choose to use a method where it is determined from the Cholesky decomposition of \textbf{F}... \cc{this may change...}. 
 
 \subsection{Signal Loss}
 \label{sec:Sigloss}
 
+Both the fringe-rate filtering and inverse covariance weighting of our visibilities produces data that is susceptible to signal loss. This is due to the reduction of independent time samples from fringe-rate filtering which leads to a more noisy dataset. Consequently, when computing $\textbf{C}^{-1}$ from the data, the result from the inverse covariance weighting of that same data is to overfit the noise. This can produce power spectra values below the thermal noise limit that is predicted based on observation parameters. 
+
+We recognize that the permutation of fringe-rate filtering and then applying the OQE framework, as well as our choice for $\textbf{C}^{-1}$, play a large role in the amount of signal loss that results. In order to quantify signal loss, we run simulations where various levels of an EoR-like signal are added on top of our data. This injected signal, $\textbf{e}$, resembles the predicted EoR signal by mimicking random noise and by being common to all baselines. It is fringe-rate filtered in the same way as our data, representing what could be the cosmological signal contained within our data. We then compare the input and output power spectrum of $\textbf{e}$ as our full OQE framework is applied.
+
+Mathematically, suppose the addition of the injected signal onto our data is
+
+\begin{equation}
+\textbf{x} + \textbf{e} = \textbf{r}.
+\end{equation}
+
+The input power spectrum of $\textbf{e}$ is computed as the power spectrum that results when an identity matrix \textbf{I} is used to replace any covariance matrices used in our pipeline. Ignoring normalization factors, this is written as
+
+\begin{equation}
+P_{in} \propto \textbf{e}^{\dagger}\textbf{I}^{-1}\textbf{Q}\textbf{I}^{-1}\textbf{e}
+\end{equation}
+
+\noindent and there is no signal loss associated with this computation. The expression for the output power spectrum, $P_{out}$, is comprised of two terms - the covariance treated power spectrum associated with \textbf{r}, and that of \textbf{x} alone. 
+
+\begin{eqnarray}
+\label{eq:sigloss}
+\textbf{p}_{x} + \textbf{p}_{e} = \textbf{p}_{r} \\
+P_{in} \equiv \textbf{p}_{e} &=& \textbf{p}_{r}-\textbf{p}_{x} \nonumber \\
+&\propto& \textbf{r}^{\dagger}\textbf{C}_{r}^{-1}\textbf{Q}\textbf{C}_{r}^{-1}\textbf{r} - \textbf{x}^{\dagger}\textbf{C}_{x}^{-1}\textbf{Q}\textbf{C}_{x}^{-1}\textbf{x} \nonumber
+\end{eqnarray}
+
+The explicit signal loss calculation described here is new to the PAPER-128 analysis. We test the expression in \eqref{eq:sigloss} by running several simulations without data (i.e. pure noise) in order to verify its output. \cc{reference signal loss paper?}
+
+The ratio of $P_{in}$ to $P_{out}$ changes as the level of the injected signal \textbf{e} is increased. As shown in \cc{reference figure here}, when the injected signal level is low compared to the data \textbf{x}, the recovered output power spectrum is the same as the input. However, when \textbf{e} begins to dominate over  \textbf{x}, we move to a regime where the input power spectrum is greater than the output, implying signal loss due to the overfitting of noise during inverse covariance weighting. 
+
+Our power spectrum for the data alone is equivalent to the second term in \eqref{eq:sigloss}, barring normalization factors. We choose to apply a conservative signal loss factor - that is, the factor that we multiply our power spectrum points by is the ratio $P_{in}/P_{out}$ that corresponds to a $P_{out}$ value equal to our highest measured power spectrum value (the point that produces the most loss). We apply this correction factor to our entire power spectrum.
+
 \section{Results}
 \label{sec:Res}
+
+Our final $21 cm$ power spectrum measurements from PAPER-128 are for a redshift of $z=\cc{??}$. The data used for this result incorporates \cc{??} days and \cc{??} channels, centered around \cc{??}. We present both the power spectrum points from $\hat{\textbf{p}}(\textbf{k})$ in units of $mk^{2}(h^{-1}Mpc)^{3}$ and the corresponding dimensionless power spectrum points, $\Delta^{2}(\textbf{k})$, which is related to $\hat{\textbf{p}}(\textbf{k})$ by
+
+\begin{equation}
+\label{eq:deltasq}
+\Delta^{2}(\textbf{k}) = \frac{k^{3}}{2\pi^{2}}\hat{\textbf{p}}(\textbf{k}).
+\end{equation}
 
 \section{Conclusions}
 \label{sec:Con}
 
 \section{Acknowledgements}
+\cc{NSF Graduate Research Fellowship Program (GRFP) Fellowship}
+\cc{UC Berkeley Chancellor's Fellowship}
 \label{sec:Ack}
 
 \bibliographystyle{apj}
